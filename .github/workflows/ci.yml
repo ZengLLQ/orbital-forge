@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+      - name: Format Check
+        run: cargo fmt --check
+      - name: Clippy Lint
+        run: cargo clippy -- -D warnings
+      - name: Run Test Suite
+        run: cargo test --verbose
+      - name: Execute CLI Benchmarks
+        run: |
+          cargo run -- --molecule h2
+          cargo run -- --molecule water
+          cargo run -- --molecule h2 --dft
